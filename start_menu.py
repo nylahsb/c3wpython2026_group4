@@ -9,10 +9,9 @@ screen = pygame.display.set_mode((1000, 720))
 pygame.display.set_caption("Start Menu")
 
 #Load background image
-background_image = pygame.image.load("sprites/background.png")
+background_image = pygame.image.load("sprites/background.png").convert_alpha()
+background_image = pygame.transform.scale(background_image, (1000, 720))
 
-#draw background image
-screen.blit(background_image, (0, 0))
 
 #Create colors
 ORANGE = (255, 165, 0)
@@ -66,6 +65,9 @@ while running:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
                 print("Starting the game!")
+
+#Draw background
+    screen.blit(background_image, (0, 0))
 
 
 #Draw aspects
