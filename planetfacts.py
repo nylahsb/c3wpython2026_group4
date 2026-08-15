@@ -1,7 +1,6 @@
 # All sprite classes for final project 
 #+ planet facts
-# import os
-# import zipfile
+
 import pygame
 import random
 
