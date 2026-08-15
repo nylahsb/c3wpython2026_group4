@@ -1,6 +1,9 @@
 import pygame
 
 
+import start_menu
+import transition_screen
+import spriteclassesforfinalproject
 #constants
 
 WIDTH = 1000
@@ -15,7 +18,8 @@ pygame.mixer.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Space Explorer")
 clock = pygame.time.Clock()
-background = pygame.image.load("spacebg.png").convert()
+
+current_screen = "start"
 
 running = True
 
@@ -26,8 +30,18 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+
+
+        if current_screen == "start":
+            current_screen = start_menu.start_menu(screen)
+        elif current_screen == "transition":
+            current_screen = transition_screen.transition_screen(screen)
+        elif current_screen == "game":
+            current_screen = spriteclassesforfinalproject.spriteclassesforfinalproject(screen)
+
     #drawing/rendering
-    screen.blit(background, (0, 0))
+    
     pygame.display.flip()
+
 pygame.quit()
 
