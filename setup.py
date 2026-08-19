@@ -4,6 +4,7 @@ import pygame
 import start_menu
 import transition_screen
 import spriteclassesforfinalproject
+
 #constants
 
 WIDTH = 1000
@@ -32,12 +33,12 @@ while running:
             running = False
 
 
-        if current_screen == "start":
-            current_screen = start_menu.start_menu(screen)
-        elif current_screen == "transition":
-            current_screen = transition_screen.transition_screen(screen)
-        elif current_screen == "game":
-            current_screen = spriteclassesforfinalproject.spriteclassesforfinalproject(screen)
+    if current_screen == "start":
+        current_screen = start_menu.start_menu(screen)
+    elif current_screen == "transition":
+        current_screen = transition_screen.transition_screen(screen)
+    elif current_screen == "game":
+        current_screen = (spriteclassesforfinalproject.spriteclassesforfinalproject(screen))
 
     #drawing/rendering
     

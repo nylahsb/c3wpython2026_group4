@@ -49,7 +49,7 @@ def transition_screen(screen):
         pygame.display.flip()
         clock.tick(60)
 
-    #After 2 seconds
+    #After 1 second
         if pygame.time.get_ticks() - start_time >= 1000:
             return "game"
 
