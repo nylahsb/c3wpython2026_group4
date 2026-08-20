@@ -1,3 +1,5 @@
+import os
+
 import pygame
 
 
@@ -15,6 +17,20 @@ FPS = 30
 
 pygame.init()
 pygame.mixer.init()
+
+music_folder = os.path.dirname(__file__)
+menu_music_file = os.path.join(
+    music_folder,
+    "3. Goodbye Sweet Alien.wav",
+)
+game_music_file = os.path.join(
+    music_folder,
+    "2. Satellite Interruption.wav",
+)
+if os.path.exists(menu_music_file):
+    pygame.mixer.music.load(menu_music_file)
+    pygame.mixer.music.set_volume(0.4)
+    pygame.mixer.music.play(-1)
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Space Explorer")
@@ -37,6 +53,9 @@ while running:
         current_screen = start_menu.start_menu(screen)
     elif current_screen == "transition":
         current_screen = transition_screen.transition_screen(screen)
+        if current_screen == "game" and os.path.exists(game_music_file):
+            pygame.mixer.music.load(game_music_file)
+            pygame.mixer.music.play(-1)
     elif current_screen == "game":
         current_screen = (spriteclassesforfinalproject.spriteclassesforfinalproject(screen))
 
