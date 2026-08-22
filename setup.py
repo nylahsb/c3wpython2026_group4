@@ -30,7 +30,7 @@ game_music_file = os.path.join(
 if os.path.exists(menu_music_file):
     pygame.mixer.music.load(menu_music_file)
     pygame.mixer.music.set_volume(0.4)
-    pygame.mixer.music.play(-1)
+    pygame.mixer.music.play(loops=-1, start=25)
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Space Explorer")
