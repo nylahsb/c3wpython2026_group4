@@ -22,8 +22,8 @@ def spriteclassesforfinalproject(screen):
 # Fonts for the planet discovery card
     discovery_font = pygame.font.Font(None, 55)
     planet_name_font = pygame.font.Font(None, 48)
-    fact_font = pygame.font.Font(None, 27)
-    small_font = pygame.font.Font(None, 25)
+    fact_font = pygame.font.Font(None, 30)
+    small_font = pygame.font.Font(None, 30)
     board_font = pygame.font.Font(None, 34)
 
     PLANET_FACTS = {
@@ -197,13 +197,13 @@ def spriteclassesforfinalproject(screen):
 
     # Round information
     MAX_LIVES = 3
-    STAR_GOAL = 20
+    STAR_GOAL = 10
 
     lives = MAX_LIVES
     score = 0
 
     mission_complete = False
-    mission_complete_time = 0
+    game_over = False
 
     # Prevent one UFO collision from removing every life
     last_ufo_hit_time = 0
@@ -268,11 +268,38 @@ def spriteclassesforfinalproject(screen):
         #     falling_group.add(asteroid)
 
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE and show_fact:
-                    show_fact = False
+                if event.key == pygame.K_SPACE:
+
+                    # Close a planet fact
+                    if show_fact:
+                        show_fact = False
+
+                    # Restart after winning or losing
+                    elif mission_complete or game_over:
+                        mission_complete = False
+                        game_over = False
+                        show_fact = False
+
+                        score = 0
+                        lives = MAX_LIVES
+
+                        discovered_planets.clear()
+                        planet_can_trigger = True
+
+                        current_planet = ""
+                        current_fact = ""
+                        current_planet_image = None
+
+                        cat_idle.rect.topleft = (100, 100)
+                        star.respawn()
+                        ufo.reset_position()
+
+                        last_ufo_hit_time = (
+                            pygame.time.get_ticks()
+                        )
 
         # Only move the UFO and player when a fact is not showing
-        if not show_fact and not mission_complete:
+        if not show_fact and not mission_complete and not game_over:
             ufo.update()
 
             keys = pygame.key.get_pressed()
@@ -292,6 +319,7 @@ def spriteclassesforfinalproject(screen):
         if (
             not show_fact
             and not mission_complete
+            and not game_over
             and score < STAR_GOAL
             and cat_idle.rect.colliderect(star.rect)
         ):
@@ -307,6 +335,7 @@ def spriteclassesforfinalproject(screen):
         if (
             not show_fact
             and not mission_complete
+            and not game_over
             and current_time - last_ufo_hit_time
             >= UFO_HIT_COOLDOWN
             and pygame.sprite.collide_mask(cat_idle, ufo)
@@ -321,14 +350,9 @@ def spriteclassesforfinalproject(screen):
 
             # Start the round again after losing every life
             if lives <= 0:
-                lives = MAX_LIVES
-                score = 0
-
-                cat_idle.rect.x = 100
-                cat_idle.rect.y = 100
-
-                star.respawn()
-                ufo.reset_position()
+                lives = 0
+                game_over = True
+                show_fact = False
 
         # Check whether the cat is near each planet's center
         touching_mars = reached_planet_center(cat_idle, mars)
@@ -379,29 +403,13 @@ def spriteclassesforfinalproject(screen):
         if (
             not show_fact
             and not mission_complete
+            and not game_over
             and score >= STAR_GOAL
             and len(discovered_planets) == 3
         ):
             mission_complete = True
             mission_complete_time = pygame.time.get_ticks()
 
-        # Begin another round after three seconds
-        if (
-            mission_complete
-            and pygame.time.get_ticks()
-            - mission_complete_time >= 3000
-        ):
-            mission_complete = False
-
-            # Reset only the round information
-            score = 0
-            lives = MAX_LIVES
-
-            cat_idle.rect.x = 100
-            cat_idle.rect.y = 100
-
-            star.respawn()
-            ufo.reset_position()
 
             # Planet discoveries intentionally do not reset
             planet_can_trigger = True
@@ -508,9 +516,7 @@ def spriteclassesforfinalproject(screen):
             # Planet Discovered heading
             discovery_title = discovery_font.render("PLANET DISCOVERED!", True, (255, 205, 75))
 
-            discovery_title_rect = discovery_title.get_rect(
-                center=(WIDTH // 2, 95)
-            )
+            discovery_title_rect = discovery_title.get_rect(center=(WIDTH // 2, 95))
 
             screen.blit(discovery_title, discovery_title_rect)
 
@@ -606,15 +612,47 @@ def spriteclassesforfinalproject(screen):
                     # Mission Complete screen
         if mission_complete:
 
-            complete_overlay = pygame.Surface(
-                (WIDTH, HEIGHT),
-                pygame.SRCALPHA
-            )
+            complete_overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
 
             complete_overlay.fill((5, 5, 25, 210))
             screen.blit(complete_overlay, (0, 0))
 
-            complete_box = pygame.Rect(
+            complete_box = pygame.Rect(220, 190, 560, 340)
+
+            pygame.draw.rect(screen, (10, 18, 55), complete_box, border_radius=30)
+
+
+            pygame.draw.rect(screen, (255, 205, 75), complete_box, width=4, border_radius=30)
+
+            complete_title = discovery_font.render("MISSION COMPLETE!", True, (255, 205, 75))
+
+            complete_title_rect = complete_title.get_rect(center=(WIDTH // 2, 270))
+
+            screen.blit(complete_title, complete_title_rect)
+
+            complete_message = fact_font.render("You collected 10 stars and explored every planet!", True, (255, 255, 255))
+
+            complete_message_rect = complete_message.get_rect(center=(WIDTH // 2, 345))
+
+            screen.blit(complete_message, complete_message_rect)
+
+            next_round_text = small_font.render("Press SPACE to play again", True, (150, 210, 255))
+
+            next_round_rect = next_round_text.get_rect(center=(WIDTH // 2, 415))
+
+            screen.blit(next_round_text, next_round_rect)
+
+                    # Game Over screen
+        if game_over:
+            game_over_overlay = pygame.Surface(
+                (WIDTH, HEIGHT),
+                pygame.SRCALPHA
+            )
+
+            game_over_overlay.fill((5, 5, 25, 220))
+            screen.blit(game_over_overlay, (0, 0))
+
+            game_over_box = pygame.Rect(
                 220,
                 190,
                 560,
@@ -624,61 +662,65 @@ def spriteclassesforfinalproject(screen):
             pygame.draw.rect(
                 screen,
                 (10, 18, 55),
-                complete_box,
+                game_over_box,
                 border_radius=30
             )
 
             pygame.draw.rect(
                 screen,
-                (255, 205, 75),
-                complete_box,
+                (235, 85, 105),
+                game_over_box,
                 width=4,
                 border_radius=30
             )
 
-            complete_title = discovery_font.render(
-                "MISSION COMPLETE!",
+            game_over_title = discovery_font.render(
+                "GAME OVER",
                 True,
-                (255, 205, 75)
+                (235, 85, 105)
             )
 
-            complete_title_rect = complete_title.get_rect(
-                center=(WIDTH // 2, 270)
+            game_over_title_rect = (
+                game_over_title.get_rect(
+                    center=(WIDTH // 2, 270)
+                )
             )
 
             screen.blit(
-                complete_title,
-                complete_title_rect
+                game_over_title,
+                game_over_title_rect
             )
 
-            complete_message = fact_font.render(
-                "You collected 20 stars and explored every planet!",
+            game_over_message = fact_font.render(
+                "You ran out of lives!",
                 True,
                 (255, 255, 255)
             )
 
-            complete_message_rect = complete_message.get_rect(
-                center=(WIDTH // 2, 345)
+            game_over_message_rect = (
+                game_over_message.get_rect(
+                    center=(WIDTH // 2, 345)
+                )
             )
 
             screen.blit(
-                complete_message,
-                complete_message_rect
+                game_over_message,
+                game_over_message_rect
             )
 
-            next_round_text = small_font.render(
-                "A new round will begin...",
+            restart_text = small_font.render(
+                "Press SPACE to play again",
                 True,
                 (150, 210, 255)
             )
 
-            next_round_rect = next_round_text.get_rect(
+            restart_rect = restart_text.get_rect(
                 center=(WIDTH // 2, 415)
             )
 
             screen.blit(
-                next_round_text,
-                next_round_rect
+                restart_text,
+                restart_rect
             )
 
         pygame.display.flip()
